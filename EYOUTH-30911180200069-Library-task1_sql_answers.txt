@@ -1,0 +1,251 @@
+TASK 1 - SQL ANSWERS AND REFLECTION
+Library After-School Program - End-of-Summer Reading Report
+
+==========================================================================================
+QUESTION 1: How much is each member borrowing?
+==========================================================================================
+
+Reasoning:
+A LEFT JOIN is used starting from members (not an INNER JOIN) so that members
+who have never checked out a book are still included in the result, with a
+count of 0, instead of disappearing from the answer.
+
+SQL Query:
+SELECT m.member_id, m.first_name, m.last_name, COUNT(c.checkout_id) AS checkout_count
+FROM members m
+LEFT JOIN checkouts c ON m.member_id = c.member_id
+GROUP BY m.member_id, m.first_name, m.last_name
+ORDER BY m.member_id;
+
+Members with zero checkouts: 18 out of 80 total members.
+
+Result (80 rows):
+ member_id first_name last_name  checkout_count
+      1001      Salma   Ibrahim               1
+      1002      Fares     Saleh               2
+      1003     Bassel    Hegazy               9
+      1004      Fares     Wahba               0
+      1005    Youssef     Halim               3
+      1006      Layla   Mansour               1
+      1007     Sherif     Fouad               3
+      1008       Ziad     Saleh              19
+      1009     Hassan     Saleh               1
+      1010       Nour     Nabil              18
+      1011      Menna     Halim               2
+      1012        Ali    Hegazy               0
+      1013       Ziad     Fouad               2
+      1014     Habiba     Nabil               1
+      1015      Hamza     Sabry               3
+      1016       Dina    Rashad               7
+      1017       Adam      Badr               2
+      1018      Ahmed    Shafik              17
+      1019    Mostafa     Wahba               3
+      1020       Rana     Fouad               7
+      1021      Fares     Fouad               0
+      1022    Youssef     Fouad               6
+      1023     Hassan    Rashad               1
+      1024    Youssef    Hegazy              17
+      1025       Hana     Nabil               0
+      1026       Nada     Saleh               3
+      1027    Mostafa     Fouad              18
+      1028     Hassan      Adel               3
+      1029       Rana     Kamel               0
+      1030       Reem     Osman              16
+      1031        Ali     Fahmy               1
+      1032       Nada      Zaki               6
+      1033     Marwan     Wahba               0
+      1034        Aya     Wahba              25
+      1035      Karim     Fahmy               1
+      1036       Lina      Zaki               1
+      1037      Retaj     Kamel               2
+      1038        Mai   Mansour               0
+      1039       Nada      Riad               2
+      1040       Dina      Adel               2
+      1041       Nada    Rashad               2
+      1042      Fares     Fahmy               0
+      1043       Rana     Halim               0
+      1044     Sherif     Saleh              21
+      1045     Sherif     Fahmy               0
+      1046       Amir     Fouad               1
+      1047       Sara    Rashad              16
+      1048    Youssef     Kamel               0
+      1049      Ahmed     Gamal               1
+      1050      Fares      Adel              11
+      1051      Karim    Rashad               0
+      1052      Retaj      Adel               1
+      1053       Adam    Shafik               5
+      1054      Retaj     Fahmy               6
+      1055    Mostafa     Kamel               2
+      1056     Farida     Osman               0
+      1057      Ahmed     Fahmy              10
+      1058       Lina   Mansour               3
+      1059       Lina     Halim               7
+      1060      Layla     Wahba               2
+      1061       Ziad     Fahmy               8
+      1062      Tarek      Adel               7
+      1063      Layla     Fouad               0
+      1064      Fares     Sabry               0
+      1065       Adam     Fahmy              17
+      1066       Amir     Wahba               0
+      1067        Aya   Ibrahim               3
+      1068      Layla    Hegazy               6
+      1069     Bassel      Adel               0
+      1070      Ahmed      Zaki               3
+      1071       Jana    Hegazy               2
+      1072       Seif      Zaki              14
+      1073     Yassin     Kamel               2
+      1074    Mostafa     Saleh               2
+      1075      Malak     Fahmy               9
+      1076       Dina     Wahba               7
+      1077       Lina    Rashad               6
+      1078     Habiba     Osman               0
+      1079       Rana     Osman              10
+      1080     Bassel     Wahba               2
+
+
+==========================================================================================
+QUESTION 2: Which books match a chosen author pattern?
+==========================================================================================
+
+Reasoning:
+Chosen pattern: authors whose name starts with the letter 'A' (SQL pattern 'A%').
+This was picked because it returns more than one author (Adel Roushdy, Amina
+Darwish, Aya Hafez), which makes it a more meaningful test of the pattern search
+than a letter that matches only a single author.
+
+SQL Query:
+SELECT book_id, title, author
+FROM books
+WHERE author LIKE 'A%'
+ORDER BY author, title;
+
+Result (6 rows):
+ book_id               title        author
+     504 Rooftop Astronomers  Adel Roushdy
+     503   The Lantern Maker  Adel Roushdy
+     502      Desert Compass Amina Darwish
+     501     The Silver Kite Amina Darwish
+     505 Letters to the Nile     Aya Hafez
+     506 The Paper Boat Club     Aya Hafez
+
+
+==========================================================================================
+QUESTION 3: What are the most popular books?
+==========================================================================================
+
+Reasoning:
+Checkouts are joined to books on book_id, grouped per book, counted, sorted from
+most to least borrowed, and cut to the top 5 with LIMIT.
+
+SQL Query:
+SELECT b.book_id, b.title, b.author, COUNT(c.checkout_id) AS times_borrowed
+FROM checkouts c
+JOIN books b ON c.book_id = b.book_id
+GROUP BY b.book_id, b.title, b.author
+ORDER BY times_borrowed DESC
+LIMIT 5;
+
+Result (5 rows):
+ book_id                  title         author  times_borrowed
+     501        The Silver Kite  Amina Darwish              57
+     507  Fossils and Fireflies    Dalia Serry              55
+     513 Circuits for Beginners   Galal Mounir              46
+     519       Kites Over Cairo Jasmine Wahdan              38
+     525   Storms and Sailboats  Mahmoud Rafei              25
+
+
+==========================================================================================
+QUESTION 4: Who are the most active readers?
+==========================================================================================
+
+Reasoning:
+An INNER JOIN is appropriate here (unlike Question 1) because the question is
+specifically about members who HAVE borrowed books; members grouped, counted,
+ranked highest to lowest, and cut to the top 10 with LIMIT.
+
+SQL Query:
+SELECT m.member_id, m.first_name, m.last_name, COUNT(c.checkout_id) AS books_borrowed
+FROM members m
+JOIN checkouts c ON m.member_id = c.member_id
+GROUP BY m.member_id, m.first_name, m.last_name
+ORDER BY books_borrowed DESC
+LIMIT 10;
+
+Result (10 rows):
+ member_id first_name last_name  books_borrowed
+      1034        Aya     Wahba              25
+      1044     Sherif     Saleh              21
+      1008       Ziad     Saleh              19
+      1010       Nour     Nabil              18
+      1027    Mostafa     Fouad              18
+      1018      Ahmed    Shafik              17
+      1024    Youssef    Hegazy              17
+      1065       Adam     Fahmy              17
+      1030       Reem     Osman              16
+      1047       Sara    Rashad              16
+
+
+==========================================================================================
+QUESTION 5: What does a neighborhood's activity look like further back in time?
+==========================================================================================
+
+Reasoning:
+Chosen neighborhood: Maadi (it has the largest number of checkouts in the
+database, so it comfortably has more than 20 records to look back through).
+Checkouts are joined to members to filter by neighborhood, ordered by
+checkout_date from newest to oldest, then OFFSET 10 skips the 10 most recent
+records and LIMIT 10 takes the next 10 -- i.e. records 11 through 20.
+
+SQL Query:
+SELECT c.checkout_id, c.member_id, c.book_id, c.checkout_date, c.return_date
+FROM checkouts c
+JOIN members m ON c.member_id = m.member_id
+WHERE m.neighborhood = 'Maadi'
+ORDER BY c.checkout_date DESC
+LIMIT 10 OFFSET 10;
+
+Result (10 rows):
+ checkout_id  member_id  book_id checkout_date return_date
+        9103       1003      513    2025-09-04  2025-09-25
+        9081       1017      502    2025-08-25  2025-09-17
+        9001       1008      501    2025-08-23  2025-08-28
+        9050       1003      521    2025-08-21         NaN
+        9085       1018      525    2025-08-19  2025-09-18
+        9055       1015      525    2025-08-08  2025-08-27
+        9023       1018      503    2025-08-04  2025-08-27
+        9004       1013      519    2025-07-27  2025-08-16
+        9051       1003      513    2025-07-22  2025-08-18
+        9010       1009      513    2025-07-22  2025-08-16
+
+
+==========================================================================================
+REFLECTION: Web Page vs. API as a Data Source
+==========================================================================================
+
+The Reading Kickoff signups live on an ordinary HTML web page, not behind an API, and that
+difference mattered in very concrete ways for this project:
+
+- Structure had to be assumed, not trusted. An API returns data in a predictable, documented
+  shape (e.g. consistent JSON fields with clear types). This page had no such contract -- the
+  data existed only inside an HTML <table>, formatted for a person's eyes. Getting it into a
+  usable form required parsing the HTML (finding the <table>, reading each <tr>/<td>) and
+  converting text like "1104" into an actual integer member_id, something an API would have
+  handed over already typed and ready to use.
+
+- No guarantee of clean, valid data. Because the page's own text explains that "desk
+  volunteers record these checkouts by hand," the values on it cannot be assumed to be as
+  reliable as a database export. That expectation turned out to be correct: three member IDs
+  on the page (1104, 1150, 1201) don't correspond to any registered member at all -- something
+  that would be far less likely coming from a system that enforces referential integrity, like
+  the library database does.
+
+- Missing fields had to be reasoned about, not just read. The page has no checkout_id and no
+  return_date column, because a return date genuinely doesn't exist yet for these checkouts.
+  An API would typically either omit a field consistently across all records or supply a clear
+  null; here, understanding *why* return_date was absent (books "not due back until the end of
+  the summer") came from reading the surrounding prose on the page, not from the data itself.
+
+For this project specifically, that distinction mattered because the Reading Kickoff data
+could not be combined with the database checkouts through a query the way the members and
+checkouts tables were (Stage 1) -- it had to be scraped, cleaned, and manually reshaped in
+Python before it could sit next to the rest of the dataset as equivalent rows.
